@@ -2,8 +2,8 @@ controller_manager:
   ros__parameters:
     update_rate: 10  # Hz
 
-    joint_state_broadcaster:
-      type: joint_state_broadcaster/JointStateBroadcaster
+    # joint_state_broadcaster:
+    #   type: joint_state_broadcaster/JointStateBroadcaster
 
     pca9685_base_controller:
       type: diff_drive_controller/DiffDriveController
@@ -27,6 +27,7 @@ pca9685_base_controller:
     pose_covariance_diagonal : [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
     twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
 
+    position_feedback: false
     open_loop: true
     enable_odom_tf: true
 

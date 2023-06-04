@@ -37,10 +37,10 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   }
 
   // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  hw_start_sec_ = std::stod(info_.hardware_parameters["example_param_hw_start_duration_sec"]);
-  hw_stop_sec_ = std::stod(info_.hardware_parameters["example_param_hw_stop_duration_sec"]);
+  // hw_start_sec_ = std::stod(info_.hardware_parameters["example_param_hw_start_duration_sec"]);
+  // hw_stop_sec_ = std::stod(info_.hardware_parameters["example_param_hw_stop_duration_sec"]);
   // END: This part here is for exemplary purposes - Please do not copy to your production code
-  hw_positions_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+  // hw_positions_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
@@ -65,7 +65,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces.size() != 2)
+    if (joint.state_interfaces.size() != 1)
     {
       RCLCPP_FATAL(
         rclcpp::get_logger("Pca9685SystemHardware"),
@@ -74,21 +74,12 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("Pca9685SystemHardware"),
-        "Joint '%s' have '%s' as first state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
-      return hardware_interface::CallbackReturn::ERROR;
-    }
-
-    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
+    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
     {
       RCLCPP_FATAL(
         rclcpp::get_logger("Pca9685SystemHardware"),
         "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
+        joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::CallbackReturn::ERROR;
     }
   }
@@ -96,13 +87,13 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
+
 std::vector<hardware_interface::StateInterface> Pca9685SystemHardware::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
+
   for (auto i = 0u; i < info_.joints.size(); i++)
   {
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_positions_[i]));
     state_interfaces.emplace_back(hardware_interface::StateInterface(
       info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_velocities_[i]));
   }
@@ -125,23 +116,12 @@ std::vector<hardware_interface::CommandInterface> Pca9685SystemHardware::export_
 hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Activating ...please wait...");
-
-  for (auto i = 0; i < hw_start_sec_; i++)
-  {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(
-      rclcpp::get_logger("Pca9685SystemHardware"), "%.1f seconds left...", hw_start_sec_ - i);
-  }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
   // set some default values
-  for (auto i = 0u; i < hw_positions_.size(); i++)
+  for (auto i = 0u; i < hw_velocities_.size(); i++)
   {
-    if (std::isnan(hw_positions_[i]))
+    if (std::isnan(hw_velocities_[i]))
     {
-      hw_positions_[i] = 0;
+      // hw_positions_[i] = 0;
       hw_velocities_[i] = 0;
       hw_commands_[i] = 0;
     }
@@ -155,40 +135,13 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
 hardware_interface::CallbackReturn Pca9685SystemHardware::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Deactivating ...please wait...");
-
-  for (auto i = 0; i < hw_stop_sec_; i++)
-  {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(
-      rclcpp::get_logger("Pca9685SystemHardware"), "%.1f seconds left...", hw_stop_sec_ - i);
-  }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Successfully deactivated!");
-
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::return_type Pca9685SystemHardware::read(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
+  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  for (std::size_t i = 0; i < hw_velocities_.size(); i++)
-  {
-    // Simulate Pca9685 wheels's movement as a first-order system
-    // Update the joint status: this is a revolute joint without any limit.
-    // Simply integrates
-    hw_positions_[i] = hw_positions_[1] + period.seconds() * hw_velocities_[i];
-
-    RCLCPP_INFO(
-      rclcpp::get_logger("Pca9685SystemHardware"),
-      "Got position state %.5f and velocity state %.5f for '%s'!", hw_positions_[i],
-      hw_velocities_[i], info_.joints[i].name.c_str());
-  }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
   return hardware_interface::return_type::OK;
 }
 
