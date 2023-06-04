@@ -66,14 +66,7 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
-  // Parameters for the Pca9685 simulation
-  // double hw_start_sec_;
-  // double hw_stop_sec_;
-
-  // Store the command for the simulated robot
   std::vector<double> hw_commands_;
-  // std::vector<double> hw_positions_;
-  std::vector<double> hw_velocities_;
 };
 
 }  // namespace pca9685_hardware_interface

@@ -36,7 +36,6 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  hw_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
@@ -87,11 +86,10 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   // set some default values
-  for (auto i = 0u; i < hw_velocities_.size(); i++)
+  for (auto i = 0u; i < hw_commands_.size(); i++)
   {
-    if (std::isnan(hw_velocities_[i]))
+    if (std::isnan(hw_commands_[i]))
     {
-      hw_velocities_[i] = 0;
       hw_commands_[i] = 0;
     }
   }
@@ -117,6 +115,10 @@ hardware_interface::return_type Pca9685SystemHardware::read(
 hardware_interface::return_type pca9685_hardware_interface ::Pca9685SystemHardware::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
+
+
+
+
   // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Writing...");
 
@@ -126,11 +128,14 @@ hardware_interface::return_type pca9685_hardware_interface ::Pca9685SystemHardwa
     RCLCPP_INFO(
       rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
       info_.joints[i].name.c_str());
-
-    hw_velocities_[i] = hw_commands_[i];
   }
   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Joints successfully written!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
+
+
+
+
+
 
   return hardware_interface::return_type::OK;
 }

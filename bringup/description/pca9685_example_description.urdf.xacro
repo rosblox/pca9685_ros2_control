@@ -2,22 +2,6 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="pca9685_example">
 
-
-
-  <link name="base_link">
-
-    <joint name="joint_0" type="continuous">
-      <parent link="base_link"/>
-      <child link="joint_0"/>
-    </joint>
-
-    <joint name="joint_1" type="continuous">
-      <parent link="base_link"/>
-      <child link="joint_1"/>
-    </joint>
-
-  </link>
-
   <ros2_control name="pca9685_example_ros2_control" type="system">
     <hardware>
       <plugin>pca9685_hardware_interface/Pca9685SystemHardware</plugin>
@@ -28,9 +12,15 @@
     <joint name="joint_1">
       <command_interface name="velocity"/>
     </joint>
+    <joint name="joint_2">
+      <command_interface name="velocity"/>
+    </joint>
+    <joint name="joint_3">
+      <command_interface name="velocity"/>
+    </joint>
+    <joint name="joint_4">
+      <command_interface name="velocity"/>
+    </joint>
   </ros2_control>
-
-
-
 
 </robot>
