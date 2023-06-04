@@ -28,7 +28,7 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("pca9685_hardware_interface_example"), "description", "description.urdf.xacro"]
+                [FindPackageShare("pca9685_ros2_control_example"), "description", "description.urdf.xacro"]
             ),
         ]
     )
@@ -36,7 +36,7 @@ def generate_launch_description():
 
     robot_controllers = PathJoinSubstitution(
         [
-            FindPackageShare("pca9685_hardware_interface_example"),
+            FindPackageShare("pca9685_ros2_control_example"),
             "config",
             "controllers.yaml",
         ]

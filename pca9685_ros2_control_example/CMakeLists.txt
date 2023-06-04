@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(pca9685_hardware_interface_example LANGUAGES CXX)
+project(pca9685_ros2_control_example LANGUAGES CXX)
 
 # find dependencies
 set(THIS_PACKAGE_INCLUDE_DEPENDS
@@ -15,7 +15,7 @@ endforeach()
 
 install(
   DIRECTORY bringup/launch bringup/config bringup/description
-  DESTINATION share/pca9685_hardware_interface_example
+  DESTINATION share/pca9685_ros2_control_example
 )
 
 

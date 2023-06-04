@@ -19,7 +19,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   const hardware_interface::HardwareInfo & info)
 {
 
-  PiPCA9685::PCA9685 pca{};
+  // PiPCA9685::PCA9685 pca{};
 
   // pca.set_pwm_freq(50.0);
 
