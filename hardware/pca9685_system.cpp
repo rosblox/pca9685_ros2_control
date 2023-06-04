@@ -65,23 +65,23 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces.size() != 1)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("Pca9685SystemHardware"),
-        "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
-        joint.state_interfaces.size());
-      return hardware_interface::CallbackReturn::ERROR;
-    }
+    // if (joint.state_interfaces.size() != 1)
+    // {
+    //   RCLCPP_FATAL(
+    //     rclcpp::get_logger("Pca9685SystemHardware"),
+    //     "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
+    //     joint.state_interfaces.size());
+    //   return hardware_interface::CallbackReturn::ERROR;
+    // }
 
-    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
-    {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("Pca9685SystemHardware"),
-        "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
-        joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-      return hardware_interface::CallbackReturn::ERROR;
-    }
+    // if (joint.state_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
+    // {
+    //   RCLCPP_FATAL(
+    //     rclcpp::get_logger("Pca9685SystemHardware"),
+    //     "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
+    //     joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
+    //   return hardware_interface::CallbackReturn::ERROR;
+    // }
   }
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -92,11 +92,11 @@ std::vector<hardware_interface::StateInterface> Pca9685SystemHardware::export_st
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  for (auto i = 0u; i < info_.joints.size(); i++)
-  {
-    state_interfaces.emplace_back(hardware_interface::StateInterface(
-      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_velocities_[i]));
-  }
+  // for (auto i = 0u; i < info_.joints.size(); i++)
+  // {
+  //   state_interfaces.emplace_back(hardware_interface::StateInterface(
+  //     info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_velocities_[i]));
+  // }
 
   return state_interfaces;
 }

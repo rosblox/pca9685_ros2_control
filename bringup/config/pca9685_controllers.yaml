@@ -5,8 +5,16 @@ controller_manager:
     # joint_state_broadcaster:
     #   type: joint_state_broadcaster/JointStateBroadcaster
 
-    pca9685_base_controller:
-      type: diff_drive_controller/DiffDriveController
+    test_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+    # pca9685_base_controller:
+    #   type: diff_drive_controller/DiffDriveController
+
+test_controller:
+  ros__parameters:
+
+    joints: ["left_wheel_joint", "right_wheel_joint"]
 
 pca9685_base_controller:
   ros__parameters:

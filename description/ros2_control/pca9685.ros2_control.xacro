@@ -6,18 +6,14 @@
     <ros2_control name="${name}" type="system">
       <hardware>
         <plugin>pca9685_hardware_interface/Pca9685SystemHardware</plugin>
-        <!-- <param name="example_param_hw_start_duration_sec">0</param>
-        <param name="example_param_hw_stop_duration_sec">3.0</param> -->
       </hardware>
       <joint name="${prefix}left_wheel_joint">
         <command_interface name="velocity"/>
-        <!-- <state_interface name="position"/> -->
-        <state_interface name="velocity"/>
+        <!-- <state_interface name="velocity"/> -->
       </joint>
       <joint name="${prefix}right_wheel_joint">
         <command_interface name="velocity"/>
-        <!-- <state_interface name="position"/> -->
-        <state_interface name="velocity"/>
+        <!-- <state_interface name="velocity"/> -->
       </joint>
     </ros2_control>
 
