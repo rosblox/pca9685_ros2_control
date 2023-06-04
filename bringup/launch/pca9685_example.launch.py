@@ -28,7 +28,7 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("pca9685_hardware_interface"), "urdf", "pca9685.urdf.xacro"]
+                [FindPackageShare("pca9685_hardware_interface"), "description", "pca9685.urdf.xacro"]
             ),
         ]
     )
@@ -38,7 +38,7 @@ def generate_launch_description():
         [
             FindPackageShare("pca9685_hardware_interface"),
             "config",
-            "pca9685_controllers.yaml",
+            "pca9685_example_controllers.yaml",
         ]
     )
 
@@ -52,7 +52,7 @@ def generate_launch_description():
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["test_controller", "--controller-manager", "/controller_manager"],
+        arguments=["joint_group_velocity_controller", "--controller-manager", "/controller_manager"],
     )
 
 

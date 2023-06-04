@@ -48,12 +48,9 @@ install(
   DIRECTORY hardware/include/
   DESTINATION include/pca9685_hardware_interface
 )
+
 install(
-  DIRECTORY description/launch description/ros2_control description/urdf description/rviz
-  DESTINATION share/pca9685_hardware_interface
-)
-install(
-  DIRECTORY bringup/launch bringup/config
+  DIRECTORY bringup/launch bringup/config bringup/description
   DESTINATION share/pca9685_hardware_interface
 )
 install(TARGETS pca9685_hardware_interface
@@ -63,9 +60,6 @@ install(TARGETS pca9685_hardware_interface
   RUNTIME DESTINATION bin
 )
 
-if(BUILD_TESTING)
-  find_package(ament_cmake_gtest REQUIRED)
-endif()
 
 ## EXPORTS
 ament_export_targets(export_pca9685_hardware_interface HAS_LIBRARY_TARGET)

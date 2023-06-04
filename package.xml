@@ -5,11 +5,8 @@
   <version>0.0.0</version>
   <description>Demo package of `ros2_control` hardware for Pca9685.</description>
 
-  <maintainer email="denis.stogl@stoglrobotics.de">Dr.-Ing. Denis Štogl</maintainer>
-  <maintainer email="bence.magyar.robotics@gmail.com">Bence Magyar</maintainer>
-  <maintainer email="christoph.froehlich@ait.ac.at">Christoph Froehlich</maintainer>
-
-  <author email="denis.stogl@stoglrobotics.de">Dr.-Ing. Denis Štogl</author>
+  <maintainer email="max.polzin@epfl.ch">Max Polzin</maintainer>
+  <author email="max.polzin@epfl.ch">Max Polzin</author>
 
   <license>Apache-2.0</license>
 
@@ -22,15 +19,8 @@
 
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>xacro</exec_depend>
-  <exec_depend>ros2_controllers_test_nodes</exec_depend>
-  <exec_depend>joint_state_broadcaster</exec_depend>
-  <exec_depend>diff_drive_controller</exec_depend>
   <exec_depend>ros2controlcli</exec_depend>
   <exec_depend>controller_manager</exec_depend>
-  <exec_depend>rviz2</exec_depend>
-  <exec_depend>robot_state_publisher</exec_depend>
-
-  <test_depend>ament_cmake_gtest</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

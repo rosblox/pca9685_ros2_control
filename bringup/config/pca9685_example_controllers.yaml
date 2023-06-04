@@ -1,0 +1,12 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 10  # Hz
+
+    joint_group_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+
+joint_group_velocity_controller:
+  ros__parameters:
+    joints: 
+      - "joint_0"
+      - "joint_1"

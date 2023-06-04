@@ -36,17 +36,12 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  // hw_start_sec_ = std::stod(info_.hardware_parameters["example_param_hw_start_duration_sec"]);
-  // hw_stop_sec_ = std::stod(info_.hardware_parameters["example_param_hw_stop_duration_sec"]);
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-  // hw_positions_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
   hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints)
   {
-    // Pca9685System has exactly two states and one command interface on each joint
+    // Pca9685System has one command interface on each output
     if (joint.command_interfaces.size() != 1)
     {
       RCLCPP_FATAL(
@@ -64,24 +59,6 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
         joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::CallbackReturn::ERROR;
     }
-
-    // if (joint.state_interfaces.size() != 1)
-    // {
-    //   RCLCPP_FATAL(
-    //     rclcpp::get_logger("Pca9685SystemHardware"),
-    //     "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
-    //     joint.state_interfaces.size());
-    //   return hardware_interface::CallbackReturn::ERROR;
-    // }
-
-    // if (joint.state_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
-    // {
-    //   RCLCPP_FATAL(
-    //     rclcpp::get_logger("Pca9685SystemHardware"),
-    //     "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
-    //     joint.state_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
-    //   return hardware_interface::CallbackReturn::ERROR;
-    // }
   }
 
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -91,13 +68,6 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
 std::vector<hardware_interface::StateInterface> Pca9685SystemHardware::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
-
-  // for (auto i = 0u; i < info_.joints.size(); i++)
-  // {
-  //   state_interfaces.emplace_back(hardware_interface::StateInterface(
-  //     info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_velocities_[i]));
-  // }
-
   return state_interfaces;
 }
 
@@ -121,7 +91,6 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
   {
     if (std::isnan(hw_velocities_[i]))
     {
-      // hw_positions_[i] = 0;
       hw_velocities_[i] = 0;
       hw_commands_[i] = 0;
     }
