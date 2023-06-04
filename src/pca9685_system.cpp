@@ -100,20 +100,20 @@ hardware_interface::return_type pca9685_hardware_interface ::Pca9685SystemHardwa
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
 
-  RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Writing...");
+  // RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Writing...");
 
-  for (auto i = 0u; i < hw_commands_.size(); i++)
-  {
-    // Simulate sending commands to the hardware
-    RCLCPP_INFO(
-      rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
-      info_.joints[i].name.c_str());
+  // for (auto i = 0u; i < hw_commands_.size(); i++)
+  // {
+  //   // Simulate sending commands to the hardware
+  //   RCLCPP_INFO(
+  //     rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
+  //     info_.joints[i].name.c_str());
 
 
-      //todo: write to pca
+  //     //todo: write to pca
 
-  }
-  RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Joints successfully written!");
+  // }
+  // RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Joints successfully written!");
 
 
   return hardware_interface::return_type::OK;
