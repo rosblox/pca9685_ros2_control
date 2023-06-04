@@ -24,11 +24,11 @@ endforeach()
 add_library(
   pca9685_hardware_interface
   SHARED
-  hardware/pca9685_system.cpp
+  src/pca9685_system.cpp
 )
 target_compile_features(pca9685_hardware_interface PUBLIC cxx_std_17)
 target_include_directories(pca9685_hardware_interface PUBLIC
-$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware/include>
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 $<INSTALL_INTERFACE:include/pca9685_hardware_interface>
 )
 ament_target_dependencies(
@@ -45,14 +45,10 @@ pluginlib_export_plugin_description_file(hardware_interface pca9685_hardware_int
 
 # INSTALL
 install(
-  DIRECTORY hardware/include/
+  DIRECTORY include/
   DESTINATION include/pca9685_hardware_interface
 )
 
-install(
-  DIRECTORY bringup/launch bringup/config bringup/description
-  DESTINATION share/pca9685_hardware_interface
-)
 install(TARGETS pca9685_hardware_interface
   EXPORT export_pca9685_hardware_interface
   ARCHIVE DESTINATION lib

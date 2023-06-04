@@ -71,7 +71,6 @@ std::vector<hardware_interface::CommandInterface> Pca9685SystemHardware::export_
 hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // set some default values
   for (auto i = 0u; i < hw_commands_.size(); i++)
   {
     if (std::isnan(hw_commands_[i]))
@@ -81,7 +80,6 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
   }
 
   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Successfully activated!");
-
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
@@ -102,10 +100,6 @@ hardware_interface::return_type pca9685_hardware_interface ::Pca9685SystemHardwa
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
 
-
-
-
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Writing...");
 
   for (auto i = 0u; i < hw_commands_.size(); i++)
@@ -114,13 +108,12 @@ hardware_interface::return_type pca9685_hardware_interface ::Pca9685SystemHardwa
     RCLCPP_INFO(
       rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
       info_.joints[i].name.c_str());
+
+
+      //todo: write to pca
+
   }
   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Joints successfully written!");
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
-
-
-
 
 
   return hardware_interface::return_type::OK;
