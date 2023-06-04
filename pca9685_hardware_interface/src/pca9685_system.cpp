@@ -10,7 +10,6 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include <pca9685_hardware_interface/pca9685_comm.h>
 
 
 namespace pca9685_hardware_interface
@@ -19,9 +18,8 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   const hardware_interface::HardwareInfo & info)
 {
 
-  // PiPCA9685::PCA9685 pca{};
-
-  // pca.set_pwm_freq(50.0);
+  // pca = new PiPCA9685::PCA9685();
+  pca.set_pwm_freq(50.0);
 
   if (
     hardware_interface::SystemInterface::on_init(info) !=
@@ -110,19 +108,17 @@ hardware_interface::return_type pca9685_hardware_interface ::Pca9685SystemHardwa
 
   // RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Writing...");
 
-  // for (auto i = 0u; i < hw_commands_.size(); i++)
-  // {
-  //   // Simulate sending commands to the hardware
-  //   RCLCPP_INFO(
-  //     rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
-  //     info_.joints[i].name.c_str());
+  for (auto i = 0u; i < hw_commands_.size(); i++)
+  {
+    // Simulate sending commands to the hardware
+    RCLCPP_INFO(
+      rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
+      info_.joints[i].name.c_str());
 
+      pca.set_pwm(i, 0, hw_commands_[i]);
 
-  //     //todo: write to pca
-
-  // }
+  }
   // RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Joints successfully written!");
-
 
   return hardware_interface::return_type::OK;
 }

@@ -17,6 +17,7 @@
 #include "rclcpp_lifecycle/state.hpp"
 
 #include "pca9685_hardware_interface/visibility_control.h"
+#include <pca9685_hardware_interface/pca9685_comm.h>
 
 namespace pca9685_hardware_interface
 {
@@ -53,6 +54,7 @@ public:
 
 private:
   std::vector<double> hw_commands_;
+  PiPCA9685::PCA9685 pca;
 };
 
 }  // namespace pca9685_hardware_interface

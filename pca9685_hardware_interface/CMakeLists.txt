@@ -13,6 +13,10 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp_lifecycle
 )
 
+
+# find_package(libi2c-dev REQUIRED)
+
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
@@ -34,6 +38,7 @@ target_include_directories(pca9685_hardware_interface PUBLIC
 $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 $<INSTALL_INTERFACE:include/pca9685_hardware_interface>
 )
+target_link_libraries(pca9685_hardware_interface PUBLIC i2c)
 ament_target_dependencies(
   pca9685_hardware_interface PUBLIC
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
