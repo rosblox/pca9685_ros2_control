@@ -41,9 +41,9 @@ def generate_launch_description():
             "pca9685_controllers.yaml",
         ]
     )
-    # rviz_config_file = PathJoinSubstitution(
-    #     [FindPackageShare("pca9685_hardware_interface"), "rviz", "pca9685.rviz"]
-    # )
+    rviz_config_file = PathJoinSubstitution(
+        [FindPackageShare("pca9685_hardware_interface"), "rviz", "pca9685.rviz"]
+    )
 
     control_node = Node(
         package="controller_manager",
@@ -51,15 +51,15 @@ def generate_launch_description():
         parameters=[robot_description, robot_controllers],
         output="both",
     )
-    # robot_state_pub_node = Node(
-    #     package="robot_state_publisher",
-    #     executable="robot_state_publisher",
-    #     output="both",
-    #     parameters=[robot_description],
-    #     remappings=[
-    #         ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),
-    #     ],
-    # )
+    robot_state_pub_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="both",
+        parameters=[robot_description],
+        remappings=[
+            ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),
+        ],
+    )
     # rviz_node = Node(
     #     package="rviz2",
     #     executable="rviz2",
@@ -98,10 +98,10 @@ def generate_launch_description():
 
     nodes = [
         control_node,
-        robot_controller_spawner
+        robot_controller_spawner,
         # robot_state_pub_node,
         # joint_state_broadcaster_spawner,
-        # delay_rviz_after_joint_state_broadcaster_spawner,
+        # rviz_node,
         # delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
     ]
 
