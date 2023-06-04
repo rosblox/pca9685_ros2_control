@@ -10,11 +10,19 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+#include <pca9685_hardware_interface/pca9685_comm.h>
+
+
 namespace pca9685_hardware_interface
 {
 hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   const hardware_interface::HardwareInfo & info)
 {
+
+  PiPCA9685::PCA9685 pca{};
+
+  // pca.set_pwm_freq(50.0);
+
   if (
     hardware_interface::SystemInterface::on_init(info) !=
     hardware_interface::CallbackReturn::SUCCESS)
