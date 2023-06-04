@@ -28,7 +28,7 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare("pca9685_hardware_interface"), "description", "pca9685.urdf.xacro"]
+                [FindPackageShare("pca9685_hardware_interface"), "description", "pca9685_example_description.urdf.xacro"]
             ),
         ]
     )
