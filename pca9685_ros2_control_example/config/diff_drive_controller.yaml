@@ -24,6 +24,7 @@ diffbot_drive_controller:
     pose_covariance_diagonal : [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
     twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
 
+    position_feedback: false # continuous servos (for driving) connected to pca9685 don't have position feedback
     open_loop: true
     enable_odom_tf: true
 
