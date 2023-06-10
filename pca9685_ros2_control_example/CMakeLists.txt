@@ -14,7 +14,7 @@ endforeach()
 
 
 install(
-  DIRECTORY bringup/launch bringup/config bringup/description
+  DIRECTORY launch config description
   DESTINATION share/pca9685_ros2_control_example
 )
 
