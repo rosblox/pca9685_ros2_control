@@ -2,9 +2,6 @@ controller_manager:
   ros__parameters:
     update_rate: 10  # Hz
 
-    joint_group_velocity_controller:
-      type: velocity_controllers/JointGroupVelocityController
-
     diffbot_drive_controller:
       type: diff_drive_controller/DiffDriveController
 
