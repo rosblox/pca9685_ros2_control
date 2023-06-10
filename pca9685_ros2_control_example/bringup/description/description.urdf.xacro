@@ -15,6 +15,9 @@
     <joint name="joint_2">
       <command_interface name="velocity"/>
     </joint>
+    <joint name="joint_3">
+      <command_interface name="velocity"/>
+    </joint>
   </ros2_control>
 
 </robot>

@@ -11,3 +11,4 @@ joint_group_velocity_controller:
       - "joint_0"
       - "joint_1"
       - "joint_2"
+      - "joint_3"

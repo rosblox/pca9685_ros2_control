@@ -38,7 +38,7 @@ def generate_launch_description():
         [
             FindPackageShare("pca9685_ros2_control_example"),
             "config",
-            "controllers.yaml",
+            "diff_drive_controller.yaml",
         ]
     )
 
