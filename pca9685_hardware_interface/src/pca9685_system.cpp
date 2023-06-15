@@ -127,16 +127,7 @@ hardware_interface::return_type Pca9685SystemHardware::write(
   {
     
     double duty_cycle = command_to_duty_cycle(hw_commands_[i]);
-
-    RCLCPP_INFO(
-      rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", duty_cycle,
-      info_.joints[i].name.c_str());
-
-    // pca.set_pwm_ms(i, duty_cycle);
-
-    // 0.52; 1.0ms -> -1
-    // 1.5ms -> 0
-    // 2,4; 2.0ms -> +1
+    pca.set_pwm_ms(i, duty_cycle);
 
   }
 
