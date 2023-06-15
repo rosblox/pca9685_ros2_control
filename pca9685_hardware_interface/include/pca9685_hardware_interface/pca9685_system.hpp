@@ -55,6 +55,7 @@ public:
 private:
   std::vector<double> hw_commands_;
   PiPCA9685::PCA9685 pca;
+  double command_to_duty_cycle(double command);
 };
 
 }  // namespace pca9685_hardware_interface

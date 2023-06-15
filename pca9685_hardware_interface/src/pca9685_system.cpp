@@ -101,17 +101,42 @@ hardware_interface::return_type Pca9685SystemHardware::read(
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type pca9685_hardware_interface ::Pca9685SystemHardware::write(
+double Pca9685SystemHardware::command_to_duty_cycle(double command){
+
+    double min_input = -1.0;
+    double max_input = 1.0;
+
+    double clamped_command = std::clamp(command, min_input, max_input);
+
+    double min_duty_cycle = 1.0;
+    double max_duty_cycle = 2.0;
+
+
+    double slope = (max_duty_cycle-min_duty_cycle)/(max_input-min_input);
+    double offset = 1.5;
+
+    return slope * clamped_command + offset;
+
+}
+
+hardware_interface::return_type Pca9685SystemHardware::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
 
   for (auto i = 0u; i < hw_commands_.size(); i++)
   {
+    
+    double duty_cycle = command_to_duty_cycle(hw_commands_[i]);
+
     RCLCPP_INFO(
-      rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", hw_commands_[i],
+      rclcpp::get_logger("Pca9685SystemHardware"), "Got command %.5f for '%s'!", duty_cycle,
       info_.joints[i].name.c_str());
 
-      pca.set_pwm(i, 0, hw_commands_[i]);
+    // pca.set_pwm_ms(i, duty_cycle);
+
+    // 0.52; 1.0ms -> -1
+    // 1.5ms -> 0
+    // 2,4; 2.0ms -> +1
 
   }
 
