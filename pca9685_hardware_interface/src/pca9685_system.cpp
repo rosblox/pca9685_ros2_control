@@ -58,6 +58,13 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
 std::vector<hardware_interface::StateInterface> Pca9685SystemHardware::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
+  
+  for (auto i = 0u; i < info_.joints.size(); i++)
+  {
+    state_interfaces.emplace_back(hardware_interface::StateInterface(
+      info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
+  }
+
   return state_interfaces;
 }
 
@@ -98,6 +105,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_deactivate(
 hardware_interface::return_type Pca9685SystemHardware::read(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
+
   return hardware_interface::return_type::OK;
 }
 
@@ -108,12 +116,12 @@ double Pca9685SystemHardware::command_to_duty_cycle(double command){
 
     double clamped_command = std::clamp(command, min_input, max_input);
 
-    double min_duty_cycle = 1.0;
-    double max_duty_cycle = 2.0;
+    double min_duty_cycle = 0.5;
+    double max_duty_cycle = 2.5;
 
 
     double slope = (max_duty_cycle-min_duty_cycle)/(max_input-min_input);
-    double offset = 1.5;
+    double offset = (max_duty_cycle+min_duty_cycle)/2;
 
     return slope * clamped_command + offset;
 
@@ -125,10 +133,8 @@ hardware_interface::return_type Pca9685SystemHardware::write(
 
   for (auto i = 0u; i < hw_commands_.size(); i++)
   {
-    
     double duty_cycle = command_to_duty_cycle(hw_commands_[i]);
     pca.set_pwm_ms(i, duty_cycle);
-
   }
 
   return hardware_interface::return_type::OK;
