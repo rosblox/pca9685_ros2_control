@@ -140,6 +140,7 @@ hardware_interface::return_type Pca9685SystemHardware::write(
     //     "Joint '%d' has command '%f', duty_cycle: '%f'.", i, hw_commands_[i], duty_cycle);
 
     pca.set_pwm_ms(i, duty_cycle);
+
   }
 
   return hardware_interface::return_type::OK;
