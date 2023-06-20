@@ -134,6 +134,11 @@ hardware_interface::return_type Pca9685SystemHardware::write(
   for (auto i = 0u; i < hw_commands_.size(); i++)
   {
     double duty_cycle = command_to_duty_cycle(hw_commands_[i]);
+
+    // RCLCPP_INFO(
+    //     rclcpp::get_logger("Pca9685SystemHardware"),
+    //     "Joint '%d' has command '%f', duty_cycle: '%f'.", i, hw_commands_[i], duty_cycle);
+
     pca.set_pwm_ms(i, duty_cycle);
   }
 
