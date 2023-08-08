@@ -22,11 +22,11 @@ diff_drive_controller:
     # left_wheel_names: ["front_left_joint","back_left_joint"]
     # right_wheel_names: ["front_right_joint","back_right_joint"]
 
-    left_wheel_names: ["joint_3"]
-    right_wheel_names: ["joint_1"]
+    left_wheel_names: ["joint_3", "joint_0"]
+    right_wheel_names: ["joint_1", "joint_2"]
 
-    left_wheel_directions: [-1]
-    right_wheel_directions: [1]
+    left_wheel_directions: [-1, 1]
+    right_wheel_directions: [1, -1]
 
     wheel_separation: 0.5
     wheels_per_side: 2  # actually 2, but both are controlled by 1 signal
