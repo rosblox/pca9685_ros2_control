@@ -18,10 +18,6 @@ joint_group_velocity_controller:
 
 diff_drive_controller:
   ros__parameters:
-
-    # left_wheel_names: ["front_left_joint","back_left_joint"]
-    # right_wheel_names: ["front_right_joint","back_right_joint"]
-
     left_wheel_names: ["joint_3", "joint_0"]
     right_wheel_names: ["joint_1", "joint_2"]
 
