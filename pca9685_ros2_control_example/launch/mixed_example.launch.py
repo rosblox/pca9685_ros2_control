@@ -47,6 +47,8 @@ def generate_launch_description():
         executable="ros2_control_node",
         parameters=[robot_description, robot_controllers],
         output="both",
+        respawn=True,
+        respawn_delay=3,
     )
 
     joint_group_velocity_controller_spawner = Node(
