@@ -9,7 +9,7 @@
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
-
+#include <pca9685_hardware_interface/pca9685_comm.h>
 
 
 namespace pca9685_hardware_interface
@@ -17,8 +17,38 @@ namespace pca9685_hardware_interface
 hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   const hardware_interface::HardwareInfo & info)
 {
+  std::string i2c_device = "/dev/i2c-1";
+  try{
+    i2c_device = info_.hardware_parameters.at("i2c_device");
+    RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"), "got parameter I2C device: %s", i2c_device.c_str());
+  }
+  catch (const std::out_of_range& e){
+    RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
+      "Missing parameter: i2c_device. Using default: %s", i2c_device.c_str());
+  }
 
-  pca.set_pwm_freq(50.0);
+  int i2c_address = 0x40;
+  try{
+    i2c_address = stoi(info_.hardware_parameters.at("i2c_address"));
+    RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"), "got parameter I2C address: %#04x", i2c_address);
+  }
+  catch (const std::out_of_range& e){
+    RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
+      "Missing parameter: i2c_address. Using default: %#04x", i2c_address);
+  }
+
+  double pwm_frequency = 50.0;
+  try{
+    pwm_frequency = stod(info_.hardware_parameters.at("pwm_frequency"));
+    RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"), "got parameter pwm_frequency: %f", pwm_frequency);
+  }
+  catch (const std::out_of_range& e){
+    RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
+      "Missing parameter: pwm_frequency. Using default: %f", pwm_frequency);
+  }
+
+  pca = PiPCA9685::PCA9685(i2c_device, i2c_address);
+  pca.set_pwm_freq(pwm_frequency);
 
   if (
     hardware_interface::SystemInterface::on_init(info) !=

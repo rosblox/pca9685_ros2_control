@@ -11,6 +11,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  Curses
 )
 
 
@@ -25,6 +26,17 @@ endforeach()
 
 
 ## COMPILE
+add_executable(pwm_test src/pwm_test.cpp src/pca9685_comm.cpp src/I2CPeripheral.cpp)
+target_include_directories(pwm_test PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+target_compile_features(pwm_test PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_link_libraries(pwm_test PUBLIC
+  rclcpp::rclcpp
+  ${CURSES_LIBRARIES}
+  i2c
+)
+
 add_library(
   pca9685_hardware_interface
   SHARED
@@ -56,6 +68,9 @@ install(
   DIRECTORY include/
   DESTINATION include/pca9685_hardware_interface
 )
+
+install(TARGETS pwm_test
+  DESTINATION lib/${PROJECT_NAME})
 
 install(TARGETS pca9685_hardware_interface
   EXPORT export_pca9685_hardware_interface

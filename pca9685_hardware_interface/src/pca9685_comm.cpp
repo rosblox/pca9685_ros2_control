@@ -20,6 +20,14 @@ PCA9685::PCA9685(const std::string &device, int address) {
   usleep(5'000);
 }
 
+PCA9685& PCA9685::operator=(PCA9685&& other) noexcept {
+  if (this != &other) {
+    frequency = other.frequency;
+    i2c_dev = std::move(other.i2c_dev);
+  }
+  return *this;
+}
+
 PCA9685::~PCA9685() = default;
 
 void PCA9685::set_pwm_freq(const double freq_hz) {
