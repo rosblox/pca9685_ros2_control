@@ -1,14 +1,15 @@
-#ifndef PIPCA9685_I2CPERIPHERAL_H
-#define PIPCA9685_I2CPERIPHERAL_H
+#ifndef PCA9685_HARDWARE_INTERFACE__I2CPERIPHERAL_HPP_
+#define PCA9685_HARDWARE_INTERFACE__I2CPERIPHERAL_HPP_
 
 #include <cstdint>
 #include <string>
 
-namespace PiPCA9685 {
+namespace PiPCA9685
+{
 
 class I2CPeripheral {
 public:
-  I2CPeripheral(const std::string& device, const uint8_t address);
+  I2CPeripheral(const std::string & device, const uint8_t address);
   ~I2CPeripheral();
 
   void WriteRegisterByte(const uint8_t register_address, const uint8_t value);
@@ -18,11 +19,10 @@ public:
 private:
   int bus_fd;
 
-  void OpenBus(const std::string& device);
+  void OpenBus(const std::string & device);
   void ConnectToPeripheral(const uint8_t address);
-
 };
 
 }  // namespace PiPCA9685
 
-#endif  // PIPCA9685_I2CPERIPHERAL_H
+#endif  // PCA9685_HARDWARE_INTERFACE__I2CPERIPHERAL_HPP_

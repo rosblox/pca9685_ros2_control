@@ -6,7 +6,6 @@
   <description>Demo package of `ros2_control` hardware for Pca9685.</description>
 
   <maintainer email="max.polzin@epfl.ch">Max Polzin</maintainer>
-  <author email="max.polzin@epfl.ch">Max Polzin</author>
 
   <license>Apache-2.0</license>
 
@@ -18,6 +17,9 @@
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
