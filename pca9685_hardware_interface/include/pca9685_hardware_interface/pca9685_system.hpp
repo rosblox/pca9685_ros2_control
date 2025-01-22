@@ -60,9 +60,10 @@ private:
   std::vector<double> pwm_lows_;
   std::vector<double> pwm_highs_;
   std::vector<double> pwm_zeros_;
-  std::vector<double> vel_scales_;
+  std::vector<double> scales_;
   PiPCA9685::PCA9685 pca;
   double command_to_pulse_width(int joint, double command);
+  double pulse_width_to_command(int joint, double pulse_ms);
 };
 
 }  // namespace pca9685_hardware_interface

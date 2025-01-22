@@ -1,8 +1,10 @@
 #include "pca9685_hardware_interface/pca9685_system.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
+#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -17,6 +19,7 @@ namespace pca9685_hardware_interface
 hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   const hardware_interface::HardwareInfo & info)
 {
+  // Call parent class on_init
   if (
     hardware_interface::SystemInterface::on_init(info) !=
     hardware_interface::CallbackReturn::SUCCESS)
@@ -24,6 +27,8 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
+  // Read "i2c_device" parameter
+  // If not found, use default "/dev/i2c-1"
   std::string i2c_device = "/dev/i2c-1";
   try{
     i2c_device = info_.hardware_parameters.at("i2c_device");
@@ -35,6 +40,8 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       "Missing parameter: i2c_device. Using default: %s", i2c_device.c_str());
   }
 
+  // Read "i2c_address" parameter
+  // If not found, use default 0x40
   int i2c_address = 0x40;
   try{
     i2c_address = stoi(info_.hardware_parameters.at("i2c_address"));
@@ -46,9 +53,18 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       "Missing parameter: i2c_address. Using default: %#04x", i2c_address);
   }
 
+  // Read "pwm_frequency" parameter
+  // Acceptable range: [24, 1526] Hz
+  // If not found, use default 50.0
   double pwm_frequency = 50.0;
   try{
     pwm_frequency = stod(info_.hardware_parameters.at("pwm_frequency"));
+    if (pwm_frequency < 24.0 || pwm_frequency > 1526.0) {
+      RCLCPP_FATAL(
+        rclcpp::get_logger("Pca9685SystemHardware"),
+        "pwm_frequency out of range [24, 1526]: %f", pwm_frequency);
+      return hardware_interface::CallbackReturn::ERROR;
+    }
     RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
       "got parameter pwm_frequency: %f", pwm_frequency);
   }
@@ -78,16 +94,27 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       return hardware_interface::CallbackReturn::ERROR;
     }
 
+    // Read parameter channel
+    // Acceptable range: [0, 15]
+    // No duplicates
+    // No default value. This parameter is mandatory.
     try {
-      channels_.emplace_back(stoi(joint.parameters.at("channel")));
-      if (channels_.back() < 0 || channels_.back() > 15) {
+      int channel = stoi(joint.parameters.at("channel"));
+      if (channel < 0 || channel > 15) {
         RCLCPP_FATAL(rclcpp::get_logger("Pca9685SystemHardware"),
           "Joint %s parameter channel out of range [0, 15]: %d",
-          joint.name.c_str(), channels_.back());
+          joint.name.c_str(), channel);
         return hardware_interface::CallbackReturn::ERROR;
       }
+      if (std::find(channels_.begin(), channels_.end(), channel) != channels_.end()) {
+        RCLCPP_FATAL(rclcpp::get_logger("Pca9685SystemHardware"),
+          "Joint %s parameter channel conflict found: duplicate on channel %d",
+          joint.name.c_str(), channel);
+        return hardware_interface::CallbackReturn::ERROR;
+      }
+      channels_.emplace_back(channel);
       RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
-        "Joint %s got parameter channel: %d", joint.name.c_str(), channels_.back());
+        "Joint %s got parameter channel: %d", joint.name.c_str(), channel);
     }
     catch (const std::out_of_range& e){
       RCLCPP_FATAL(rclcpp::get_logger("Pca9685SystemHardware"),
@@ -95,14 +122,15 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       return hardware_interface::CallbackReturn::ERROR;
     }
 
+    // Check that command interface is either velocity or position.
+    // If velocity, treat this as a continuous rotation servo
     if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY &&
       joint.command_interfaces[0].name != hardware_interface::HW_IF_POSITION)
     {
-      RCLCPP_FATAL(
-        rclcpp::get_logger("Pca9685SystemHardware"),
+      RCLCPP_FATAL(rclcpp::get_logger("Pca9685SystemHardware"),
         "Joint '%s' has %s command interface. '%s' or '%s' expected.", joint.name.c_str(),
         joint.command_interfaces[0].name.c_str(),
-        hardware_interface::HW_IF_VELOCITY, hardware_interface::HW_IF_POSITION,);
+        hardware_interface::HW_IF_VELOCITY, hardware_interface::HW_IF_POSITION);
       return hardware_interface::CallbackReturn::ERROR;
     }
     RCLCPP_DEBUG(
@@ -113,6 +141,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
     continuous_.emplace_back(
       joint.command_interfaces[0].name == hardware_interface::HW_IF_VELOCITY);
 
+    // Only zero or one state interface allowed, and it must match the command interface
     if (joint.state_interfaces.size() >= 1)
     {
       RCLCPP_FATAL(
@@ -134,6 +163,9 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       fake_states_.emplace_back(joint.state_interfaces.size() == 1);
     }
 
+    // Read "pwm_low" parameter
+    // Acceptable range: [0, 1000/pwm_frequency]
+    // If not found, use default 1.0
     try {
       pwm_lows_.emplace_back(std::stod(joint.parameters.at("pwm_low")));
       if (pwm_lows_.back() < 0 || pwm_lows_.back() > 1000/pwm_frequency) {
@@ -152,6 +184,10 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
         "Joint %s missing parameter 'pwm_low', assuming default 1.0", joint.name.c_str());
     }
+
+    // Read "pwm_high" parameter
+    // Acceptable range: [0, 1000/pwm_frequency]
+    // If not found, use default 2.0
     try {
       pwm_highs_.emplace_back(std::stod(joint.parameters.at("pwm_high")));
       if (pwm_highs_.back() < 0 || pwm_highs_.back() > 1000/pwm_frequency){
@@ -171,6 +207,9 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
         "Joint %s missing parameter 'pwm_high', assuming default 2.0", joint.name.c_str());
     }
 
+    // Read "pwm_zero" parameter
+    // Acceptable range: [0, 1000/pwm_frequency]
+    // If not found, use default (pwm_low + pwm_high)/2
     try {
       pwm_zeros_.emplace_back(std::stod(joint.parameters.at("pwm_zero")));
       if (pwm_zeros_.back() < 0 || pwm_zeros_.back() > 1000/pwm_frequency){
@@ -183,32 +222,25 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       }
       RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
       "Joint %s got parameter pwm_zero: %f", joint.name.c_str(), pwm_zeros_.back());
-      if (!continuous_.back()) {
-        RCLCPP_WARN(rclcpp::get_logger("Pca9685SystemHardware"),
-          "Position joint %s got parameter pwm_zero, but this only applies to velocity joints",
-          joint.name.c_str());
-      }
     }
     catch (const std::out_of_range& e){
-      pwm_zeros_.emplace_back(1.5);
+      pwm_zeros_.emplace_back((pwm_lows_.back() + pwm_highs_.back()) / 2.0);
       RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
-        "Joint %s missing parameter 'pwm_zero', assuming default 1.5", joint.name.c_str());
+        "Joint %s missing parameter 'pwm_zero', assuming default of (pwm_low + pwm_high)/2",
+        joint.name.c_str());
     }
 
+    // Read "scale" parameter
+    // If not found, use default 1.0
     try {
-      vel_scales_.emplace_back(std::stod(joint.parameters.at("vel_scale")));
+      scales_.emplace_back(std::stod(joint.parameters.at("scale")));
       RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
-        "Joint %s got parameter vel_scale: %f", joint.name.c_str(), vel_scales_.back());
-      if (!continuous_.back()) {
-        RCLCPP_WARN(rclcpp::get_logger("Pca9685SystemHardware"),
-          "Position joint %s got parameter vel_scale, but this only applies to velocity joints",
-          joint.name.c_str());
-      }
+        "Joint %s got parameter scale: %f", joint.name.c_str(), scales_.back());
     }
     catch (const std::out_of_range& e){
-      vel_scales_.emplace_back(1.0);
+      scales_.emplace_back(1.0);
       RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
-        "Joint %s missing parameter 'vel_scale', assuming default 1.0", joint.name.c_str());
+        "Joint %s missing parameter 'scale', assuming default 1.0", joint.name.c_str());
     }
   }
 
@@ -222,7 +254,9 @@ std::vector<hardware_interface::StateInterface> Pca9685SystemHardware::export_st
   
   for (auto i = 0u; i < info_.joints.size(); i++)
   {
+    // Only export if this joint has a state interface specified
     if (fake_states_[i]) {
+      // Match the state interface type to the command interface
       if (continuous_[i]){
         state_interfaces.emplace_back(hardware_interface::StateInterface(
           info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
@@ -263,7 +297,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
     if (std::isnan(hw_commands_[i]))
     {
       if(continuous_[i])
-        hw_commands_[i] = pwm_zeros_[i];
+        hw_commands_[i] = pulse_width_to_command(i, pwm_zeros_[i]);
       else
         hw_commands_[i] = 0.0;
     }
@@ -276,6 +310,16 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
 hardware_interface::CallbackReturn Pca9685SystemHardware::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "on_deactivate!");
+  // Stop all continuous joints
+  // TODO unable to test this because of a bug in ros2_control
+  // https://github.com/ros-controls/ros2_control/issues/2012
+  // Do we need to manually run write() after setting command?
+  for (auto i = 0u; i < hw_commands_.size(); i++)
+  {
+    if(continuous_[i])
+      hw_commands_[i] = pulse_width_to_command(i, pwm_zeros_[i]);
+  }
   RCLCPP_INFO(rclcpp::get_logger("Pca9685SystemHardware"), "Successfully deactivated!");
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -288,26 +332,20 @@ hardware_interface::return_type Pca9685SystemHardware::read(
 }
 
 double Pca9685SystemHardware::command_to_pulse_width(int joint, double command){
+  double slope = (pwm_highs_[joint] - pwm_zeros_[joint]) / scales_[joint];
+  double min_command = (pwm_lows_[joint] - pwm_zeros_[joint]) / slope;
+  double clamped_command = std::clamp(command, min_command, scales_[joint]);
 
-    double clamped_command;
-    double slope;
-    double offset;
-    if (continuous_[joint]){
-      clamped_command = std::clamp(command, -1.0*vel_scales_[joint], vel_scales_[joint]);
-      slope = (pwm_highs_[joint]-pwm_lows_[joint])/(vel_scales_[joint]*2.0);
-      offset = pwm_zeros_[joint];
-    }
-    else {
-      clamped_command = std::clamp(command, -1.0*M_PI, M_PI);
-      slope = (pwm_highs_[joint]-pwm_lows_[joint])/(M_PI*2.0);
-      offset = (pwm_highs_[joint]+pwm_lows_[joint])/2;
-    }
+  if (abs(clamped_command - command) > 0.000001)
+    RCLCPP_WARN(rclcpp::get_logger("Pca9685SystemHardware"),
+      "Clamping command: %f -> %f", command, clamped_command);
 
-    if (clamped_command != command)
-      RCLCPP_WARN(rclcpp::get_logger("Pca9685SystemHardware"),
-        "Clamping command: %f -> %f", command, clamped_command);
+  return slope * clamped_command + pwm_zeros_[joint];
+}
 
-    return slope * clamped_command + offset;
+double Pca9685SystemHardware::pulse_width_to_command(int joint, double pulse_ms){
+  double slope = (pwm_highs_[joint] - pwm_zeros_[joint]) / scales_[joint];
+  return (pulse_ms - pwm_zeros_[joint])/slope;
 }
 
 hardware_interface::return_type Pca9685SystemHardware::write(
@@ -321,7 +359,7 @@ hardware_interface::return_type Pca9685SystemHardware::write(
     RCLCPP_DEBUG(rclcpp::get_logger("Pca9685SystemHardware"),
       "Joint '%d' has command '%f', pulse_width: '%f'.", i, hw_commands_[i], pulse_width);
 
-    pca.set_pwm_ms(i, pulse_width);
+    pca.set_pwm_ms(channels_[i], pulse_width);
   }
 
   return hardware_interface::return_type::OK;
