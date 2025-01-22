@@ -56,12 +56,13 @@ private:
   std::vector<double> hw_commands_;
   std::vector<int> channels_;
   std::vector<bool> continuous_;
-  std::vector<double> calib_lows_;
-  std::vector<double> calib_highs_;
-  std::vector<double> calib_zeros_;
-  std::vector<double> scales_;
+  std::vector<bool> fake_states_;
+  std::vector<double> pwm_lows_;
+  std::vector<double> pwm_highs_;
+  std::vector<double> pwm_zeros_;
+  std::vector<double> vel_scales_;
   PiPCA9685::PCA9685 pca;
-  double command_to_duty_cycle(double command);
+  double command_to_pulse_width(int joint, double command);
 };
 
 }  // namespace pca9685_hardware_interface
