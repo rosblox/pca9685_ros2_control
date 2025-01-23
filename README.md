@@ -17,10 +17,38 @@
 ### Tips
 
 The `pwm_test` executable (`ros2 run pca9685_hardware_interface pwm_test --ros-args -p channel:=0`) can be used to determine PWM limits.
+Trial and error may be necessary to tune the position servo response.
+After finding the zero point and hard limits, tune the scale and limits until 90-degree angles are correct.
 
 For position servos, zero is set in the middle of the reachable range to follow MoveIt's convention.
 
-If a state interface is specified, it must match the command interface. The reported state is simply the last command.
+If a state interface is specified, it must match the command interface type. The reported state is simply the last command with limits applied.
 
 This hardware interface does not define command interfaces for other PWM devices such as LEDs. However, they can be driven by a position or velocity interface.
 Set `pwm_low` and `pwm_zero` to zero, and set `pwm_high` to 1000/`pwm_frequency`. Then a command in the range of [0.0, 1.0] will map to [0, 100]% duty cycle.
+
+
+# pca9685_ros2_control_demo
+
+### `diff_drive_controller`
+
+<img src="diff_drive.gif" alt="pca9685_ros2_control_demo"  loop=infinite>
+
+```
+ros2 launch pca9685_ros2_control_example diff_drive.launch.py
+```
+```
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r /cmd_vel:=/diffbot_base_controller/cmd_vel
+```
+
+
+### `forward_command_controller`
+
+<img src="position_servo.gif" alt="pca9685_ros2_control_demo"  loop=infinite>
+
+```
+ros2 launch pca9685_ros2_control_example position_servo.launch.py
+```
+```
+ros2 topic pub /forward_position_controller/commands std_msgs/msg/Float64MultiArray "{layout:{dim: [], data_offset: 0}, data: [-1.57]}" -1
+```

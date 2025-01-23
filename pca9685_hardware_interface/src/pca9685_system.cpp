@@ -78,6 +78,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
   pca.set_pwm_freq(pwm_frequency);
 
   hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+  hw_states_  .resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
 
   for (const hardware_interface::ComponentInfo & joint : info_.joints) {
     // Pca9685System has one command interface on each output
@@ -136,7 +137,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_init(
       joint.command_interfaces[0].name == hardware_interface::HW_IF_VELOCITY);
 
     // Only zero or one state interface allowed, and it must match the command interface
-    if (joint.state_interfaces.size() >= 1) {
+    if (joint.state_interfaces.size() > 1) {
       RCLCPP_FATAL(
         rclcpp::get_logger("Pca9685SystemHardware"),
           "Joint '%s' has %zu state interfaces found. 0 or 1 expected.",
@@ -245,10 +246,10 @@ std::vector<hardware_interface::StateInterface> Pca9685SystemHardware::export_st
       // Match the state interface type to the command interface
       if (continuous_[i]) {
         state_interfaces.emplace_back(hardware_interface::StateInterface(
-          info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
+          info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_states_[i]));
       } else {
         state_interfaces.emplace_back(hardware_interface::StateInterface(
-          info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_commands_[i]));
+          info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_states_[i]));
       }
     }
   }
@@ -279,8 +280,10 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
     if (std::isnan(hw_commands_[i])) {
       if(continuous_[i]) {
         hw_commands_[i] = pulse_width_to_command(i, pwm_zeros_[i]);
+        hw_states_[i] = hw_commands_[i]
       } else {
         hw_commands_[i] = 0.0;
+        hw_states_[i] = 0.0;
       }
     }
   }
@@ -315,12 +318,19 @@ double Pca9685SystemHardware::command_to_pulse_width(int joint, double command)
 {
   double slope = (pwm_highs_[joint] - pwm_zeros_[joint]) / scales_[joint];
   double min_command = (pwm_lows_[joint] - pwm_zeros_[joint]) / slope;
-  double clamped_command = std::clamp(command, min_command, scales_[joint]);
+  double clamped_command;
+  if (scales_[joint] < 0) {
+    clamped_command = std::clamp(command, scales_[joint], min_command);
+  } else {
+    clamped_command = std::clamp(command, min_command, scales_[joint]);
+  }
 
   if (abs(clamped_command - command) > 0.000001) {
     RCLCPP_WARN(rclcpp::get_logger("Pca9685SystemHardware"),
       "Clamping command: %f -> %f", command, clamped_command);
   }
+
+  hw_states_[joint] = clamped_command;
 
   return slope * clamped_command + pwm_zeros_[joint];
 }

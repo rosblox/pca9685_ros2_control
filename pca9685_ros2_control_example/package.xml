@@ -6,7 +6,6 @@
   <description>Demo package of `ros2_control` hardware for Pca9685.</description>
 
   <maintainer email="max.polzin@epfl.ch">Max Polzin</maintainer>
-  <author email="max.polzin@epfl.ch">Max Polzin</author>
 
   <license>Apache-2.0</license>
 
@@ -16,9 +15,15 @@
   <exec_depend>xacro</exec_depend>
   <exec_depend>ros2controlcli</exec_depend>
   <exec_depend>controller_manager</exec_depend>
+  <exec_depend>controller_interface</exec_depend>
+  <exec_depend>diff_drive_controller</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>ros2launch</exec_depend>
   <exec_depend>pca9685_hardware_interface</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
   </export>
 </package>
+ 

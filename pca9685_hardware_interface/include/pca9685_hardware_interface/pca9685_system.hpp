@@ -54,6 +54,7 @@ public:
 
 private:
   std::vector<double> hw_commands_;
+  std::vector<double> hw_states_;
   std::vector<int> channels_;
   std::vector<bool> continuous_;
   std::vector<bool> fake_states_;
