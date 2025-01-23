@@ -16,11 +16,10 @@
 
 ### Tips
 
-The `pwm_test` executable (`ros2 run pca9685_hardware_interface pwm_test --ros-args -p channel:=0`) can be used to determine PWM limits.
-Trial and error may be necessary to tune the position servo response.
-After finding the zero point and hard limits, tune the scale and limits until 90-degree angles are correct.
+The `pwm_test` executable can be used to determine PWM limits: `ros2 run pca9685_hardware_interface pwm_test --ros-args -p channel:=0`
 
 For position servos, zero is set in the middle of the reachable range to follow MoveIt's convention.
+After finding the zero point and hard limits, tune the scale and limits until 90-degree angles are correct.
 
 If a state interface is specified, it must match the command interface type. The reported state is simply the last command with limits applied.
 

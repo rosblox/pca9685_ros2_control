@@ -280,7 +280,7 @@ hardware_interface::CallbackReturn Pca9685SystemHardware::on_activate(
     if (std::isnan(hw_commands_[i])) {
       if(continuous_[i]) {
         hw_commands_[i] = pulse_width_to_command(i, pwm_zeros_[i]);
-        hw_states_[i] = hw_commands_[i]
+        hw_states_[i] = hw_commands_[i];
       } else {
         hw_commands_[i] = 0.0;
         hw_states_[i] = 0.0;
