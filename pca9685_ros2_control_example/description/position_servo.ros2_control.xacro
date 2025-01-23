@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!-- Copied from https://github.com/ros-controls/ros2_control_demos -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="position_servo_ros2_control" params="name prefix">
+    <ros2_control name="${name}" type="system">
+      <hardware>
+        <plugin>pca9685_hardware_interface/Pca9685SystemHardware</plugin>
+      </hardware>
+      
+      <joint name="${prefix}joint_0">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <param name="channel">0</param>
+        <param name="pwm_low">0.5</param>
+        <param name="pwm_high">2.5</param>
+        <param name="pwm_zero">1.0</param>
+        <param name="scale">3.5</param>
+      </joint>
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

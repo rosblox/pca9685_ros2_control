@@ -16,8 +16,8 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-#include "pca9685_hardware_interface/visibility_control.h"
-#include <pca9685_hardware_interface/pca9685_comm.h>
+#include "pca9685_hardware_interface/visibility_control.hpp"
+#include <pca9685_hardware_interface/pca9685_comm.hpp>
 
 namespace pca9685_hardware_interface
 {
@@ -54,8 +54,17 @@ public:
 
 private:
   std::vector<double> hw_commands_;
+  std::vector<double> hw_states_;
+  std::vector<int> channels_;
+  std::vector<bool> continuous_;
+  std::vector<bool> fake_states_;
+  std::vector<double> pwm_lows_;
+  std::vector<double> pwm_highs_;
+  std::vector<double> pwm_zeros_;
+  std::vector<double> scales_;
   PiPCA9685::PCA9685 pca;
-  double command_to_duty_cycle(double command);
+  double command_to_pulse_width(int joint, double command);
+  double pulse_width_to_command(int joint, double pulse_ms);
 };
 
 }  // namespace pca9685_hardware_interface

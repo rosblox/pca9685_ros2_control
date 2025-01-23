@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- Copied from https://github.com/ros-controls/ros2_control_demos -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="position_servo" params="prefix parent *origin">
+
+  <joint name="${prefix}base_joint" type="fixed">
+    <xacro:insert_block name="origin" />
+    <parent link="${parent}"/>
+    <child link="${prefix}base_link" />
+  </joint>
+
+  <!-- Base Link -->
+  <link name="${prefix}base_link">
+    <collision>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.02 0.04"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.04 0.02 0.04"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    </link>
+
+    <link name="${prefix}arm">
+      <collision>
+        <origin xyz="0.015 0 0.004" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.035 0.015 0.008"/>
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="0.015 0 0.004" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.035 0.015 0.008"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      </link>
+
+    <joint name="${prefix}joint_0" type="revolute">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}arm"/>
+      <origin xyz="0.015 0 0.04" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-1.57" upper="2.3" effort="100" velocity="1.0"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>

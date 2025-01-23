@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!-- Copied from https://github.com/ros-controls/ros2_control_demos -->
+<!-- Basic differential drive mobile base -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="position_servo">
+  <xacro:arg name="prefix" default="" />
+
+  <xacro:include filename="$(find pca9685_ros2_control_example)/description/position_servo_description.urdf.xacro" />
+
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find pca9685_ros2_control_example)/description/diffbot.materials.xacro" />
+
+  <!-- Import ros2_control description -->
+  <xacro:include filename="$(find pca9685_ros2_control_example)/description/position_servo.ros2_control.xacro" />
+
+  <!-- Used for fixing robot -->
+  <link name="world"/>
+
+  <xacro:position_servo parent="world" prefix="$(arg prefix)">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:position_servo>
+
+  <xacro:position_servo_ros2_control
+    name="PositionServo" prefix="$(arg prefix)"/>
+
+</robot>
