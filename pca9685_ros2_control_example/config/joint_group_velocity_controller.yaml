@@ -8,5 +8,6 @@ controller_manager:
 joint_group_velocity_controller:
   ros__parameters:
     joints: 
-      - "joint_4"
       - "joint_5"
+      - "joint_4"
+  
